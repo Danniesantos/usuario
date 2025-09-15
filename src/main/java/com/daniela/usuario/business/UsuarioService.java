@@ -9,20 +9,31 @@ import com.daniela.usuario.infrastructure.entity.Telefone;
 import com.daniela.usuario.infrastructure.entity.Usuario;
 import com.daniela.usuario.infrastructure.exceptions.ConflictException;
 import com.daniela.usuario.infrastructure.exceptions.ResourceNotFoundException;
+import com.daniela.usuario.infrastructure.exceptions.UnauthorizedException;
 import com.daniela.usuario.infrastructure.repository.EnderecoRepository;
 import com.daniela.usuario.infrastructure.repository.TelefoneRepository;
 import com.daniela.usuario.infrastructure.repository.UsuarioRepository;
 import com.daniela.usuario.infrastructure.security.JwtUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.authorization.AuthorizationDeniedException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
 public class UsuarioService {
+
+    public static final String ERRO_EMAIL = "Email não localizado ou inválido";
+
     private final UsuarioRepository usuarioRepository;
     private final UsuarioConverter usuarioConverter;
     private final PasswordEncoder passwordEncoder;
+    private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
     private final EnderecoRepository enderecoRepository;
     private final TelefoneRepository telefoneRepository;
@@ -34,6 +45,19 @@ public class UsuarioService {
         return usuarioConverter.paraUsuarioDTO(usuarioRepository.save(usuario));
     }
 
+    public String autenticarUsuario(UsuarioDTO usuarioDTO) {
+        try {
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(usuarioDTO.getEmail(),
+                            usuarioDTO.getSenha())
+            );
+            return "Bearer" + jwtUtil.generateToken(authentication.getName());
+        } catch (BadCredentialsException | UsernameNotFoundException | AuthorizationDeniedException e) {
+            throw new UnauthorizedException(ERRO_EMAIL, e.getCause());
+        }
+
+    }
+
     public void emailExiste(String email) {
         try {
             boolean existe = verificaEmailExistente(email);
@@ -41,7 +65,7 @@ public class UsuarioService {
                 throw new ConflictException("Email já cadastrado " + email);
             }
         } catch (ConflictException e) {
-            throw new ConflictException("Email já cadastrado " + e.getCause());
+            throw new ConflictException(ERRO_EMAIL + e.getCause());
         }
     }
 
@@ -53,9 +77,9 @@ public class UsuarioService {
         try {
             return usuarioConverter.paraUsuarioDTO(
                     usuarioRepository.findByEmail(email).orElseThrow(
-                            () -> new ResourceNotFoundException("Email não encontrado " + email)));
+                            () -> new ResourceNotFoundException(ERRO_EMAIL + email)));
         } catch (ResourceNotFoundException e) {
-            throw new ResourceNotFoundException("Email não localizado " + email);
+            throw new ResourceNotFoundException(ERRO_EMAIL + email);
         }
     }
 
@@ -70,7 +94,7 @@ public class UsuarioService {
                 passwordEncoder.encode(usuarioDTO.getSenha()) : null);
 
         Usuario usuarioEntity = usuarioRepository.findByEmail(email).orElseThrow(() ->
-                new ResourceNotFoundException("Email não localizado "));
+                new ResourceNotFoundException(ERRO_EMAIL));
 
         Usuario usuario = usuarioConverter.updateUsuario(usuarioDTO, usuarioEntity);
 
@@ -80,7 +104,7 @@ public class UsuarioService {
     public EnderecoDTO atualizaEndereco(Long idEndereco, EnderecoDTO enderecoDTO) {
 
         Endereco entity = enderecoRepository.findById(idEndereco).orElseThrow(
-                () -> new ResourceNotFoundException("Id não encontrado " + idEndereco));
+                () -> new ResourceNotFoundException(ERRO_EMAIL + idEndereco));
         Endereco endereco = usuarioConverter.updateEndereco(enderecoDTO, entity);
 
         return usuarioConverter.paraEnderecoDTO(enderecoRepository.save(endereco));
@@ -101,7 +125,7 @@ public class UsuarioService {
         String email = jwtUtil.extractUsername(token.substring(7));
 
         Usuario usuario = usuarioRepository.findByEmail(email).orElseThrow(
-                () -> new ResourceNotFoundException("Email não localizado " + email));
+                () -> new ResourceNotFoundException(ERRO_EMAIL + email));
 
         Endereco endereco = usuarioConverter.paraEnderecoEntity(enderecoDTO, usuario.getId());
 
@@ -114,7 +138,7 @@ public class UsuarioService {
         String email = jwtUtil.extractUsername(token.substring(7));
 
         Usuario usuario = usuarioRepository.findByEmail(email).orElseThrow(
-                () -> new ResourceNotFoundException("Email não localizado " + email));
+                () -> new ResourceNotFoundException(ERRO_EMAIL + email));
 
         Telefone telefone = usuarioConverter.paraTelefoneEntity(telefoneDTO, usuario.getId());
 

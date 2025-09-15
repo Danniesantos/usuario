@@ -29,9 +29,11 @@ public class Usuario implements UserDetails {
 
     @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "usuario_id", referencedColumnName = "id")
+    @SuppressWarnings("squid:S1948")
     private List<Endereco> enderecos;
     @OneToMany(cascade = CascadeType.ALL)
-    @JoinColumn(name = "usuario_id" , referencedColumnName = "id")
+    @JoinColumn(name = "usuario_id", referencedColumnName = "id")
+    @SuppressWarnings("squid:S1948")
     private List<Telefone> telefones;
 
     @Override
