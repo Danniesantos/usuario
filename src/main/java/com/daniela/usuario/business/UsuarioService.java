@@ -104,7 +104,7 @@ public class UsuarioService {
     public EnderecoDTO atualizaEndereco(Long idEndereco, EnderecoDTO enderecoDTO) {
 
         Endereco entity = enderecoRepository.findById(idEndereco).orElseThrow(
-                () -> new ResourceNotFoundException(ERRO_EMAIL + idEndereco));
+                () -> new ResourceNotFoundException("Id não encontrado " + idEndereco));
         Endereco endereco = usuarioConverter.updateEndereco(enderecoDTO, entity);
 
         return usuarioConverter.paraEnderecoDTO(enderecoRepository.save(endereco));
