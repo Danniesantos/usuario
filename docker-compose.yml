@@ -8,7 +8,7 @@ services:
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/db_usuario
       SPRING_DATASOURCE_USERNAME: postgres
-      SPRING_DATASOURCE_PASSWORD: orign@123
+      SPRING_DATASOURCE_PASSWORD: adm@123
     depends_on:
       - db
 
@@ -17,6 +17,6 @@ services:
     environment:
       POSTGRES_DB: db_usuario
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: orign@123
+      POSTGRES_PASSWORD: adm@123
     ports:
       - "5432:5432"

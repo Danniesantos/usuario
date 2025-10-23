@@ -5,11 +5,10 @@ import com.daniela.usuario.business.ViaCepService;
 import com.daniela.usuario.business.dto.EnderecoDTO;
 import com.daniela.usuario.business.dto.TelefoneDTO;
 import com.daniela.usuario.business.dto.UsuarioDTO;
-import com.daniela.usuario.infrastructure.security.JwtUtil;
 import com.daniela.usuario.infrastructure.security.client.ViaCepDTO;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.web.bind.annotation.*;
 
 @RequiredArgsConstructor
@@ -17,13 +16,14 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/usuario")
 public class UsuarioController {
     private final UsuarioService usuarioService;
-    private final JwtUtil jwtUtil;
-    private final AuthenticationManager authenticationManager;
+
     private final ViaCepService viaCepService;
 
     @PostMapping
     public ResponseEntity<UsuarioDTO> salvaUsuario(@RequestBody UsuarioDTO usuarioDTO) {
-        return ResponseEntity.ok(usuarioService.salvaUsuario(usuarioDTO));
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(usuarioService.salvaUsuario(usuarioDTO));
     }
 
     @PostMapping("/login")
@@ -39,7 +39,7 @@ public class UsuarioController {
     @DeleteMapping("/{email}")
     public ResponseEntity<Void> deletaUsuarioPorEmail(@PathVariable String email) {
         usuarioService.deletaUsuarioPorEmail(email);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
     }
 
     @PutMapping
@@ -63,17 +63,21 @@ public class UsuarioController {
     @PostMapping("/endereco")
     public ResponseEntity<EnderecoDTO> cadastraEndereco(@RequestBody EnderecoDTO enderecoDTO,
                                                         @RequestHeader("Authorization") String token) {
-        return ResponseEntity.ok(usuarioService.cadastraEndereco(enderecoDTO, token));
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(usuarioService.cadastraEndereco(enderecoDTO, token));
     }
 
     @PostMapping("/telefone")
     public ResponseEntity<TelefoneDTO> cadastraTelefone(@RequestBody TelefoneDTO telefoneDTO,
                                                         @RequestHeader("Authorization") String token) {
-        return ResponseEntity.ok(usuarioService.cadastraTelefone(telefoneDTO, token));
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(usuarioService.cadastraTelefone(telefoneDTO, token));
     }
 
     @GetMapping("/endereco/{cep}")
     public ResponseEntity<ViaCepDTO> buscaDadosCep(@PathVariable("cep") String cep) {
-        return ResponseEntity.ok(viaCepService.buscaDadosEndereco(cep));
+        return ResponseEntity.ok(viaCepService.buscaDadosCep(cep));
     }
 }
