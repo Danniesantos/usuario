@@ -13,7 +13,7 @@ public class ViaCepService {
 
     private final ViaCepClient viaCepClient;
 
-    public ViaCepDTO buscaDadosEndereco(String cep) {
+    public ViaCepDTO buscaDadosCep(String cep) {
         try {
             return viaCepClient.buscaDadosEndereco(processarCep(cep));
         } catch (IllegalArgumentException e) {
