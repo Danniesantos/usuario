@@ -11,7 +11,7 @@ com **SonarLint/SonarQube**.
 - **Frameworks:** Spring Boot, Spring Data JPA  
 - **Banco de Dados:** PostgreSQL  
 - **Documentação da API:** Swagger  
-- **Testes Unitários:** JUnit  
+- **Testes Unitários:** JUnit, Mockito 
 - **DevOps:** Docker, Git/GitHub  
 - **Qualidade de Código:** SonarLint/SonarQube  
 
