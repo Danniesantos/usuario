@@ -21,7 +21,7 @@ com **SonarLint/SonarQube**.
 
 - CRUD completo de usuários (Criar, Ler, Atualizar, Excluir)  
 - Documentação da API com **Swagger**  
-- Testes unitários para principais endpoints  
+- Testes unitários utilizando **Mockito** e **JUnit5**(BDD, AssertJ, Hamcret)  
 - Deploy em ambiente isolado com **Docker**  
 - Análise de qualidade de código com **SonarLint/SonarQube**  
 
