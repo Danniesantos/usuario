@@ -6,6 +6,7 @@ import com.daniela.usuario.business.dto.EnderecoDTO;
 import com.daniela.usuario.business.dto.TelefoneDTO;
 import com.daniela.usuario.business.dto.UsuarioDTO;
 import com.daniela.usuario.infrastructure.exceptions.ConflictException;
+import com.daniela.usuario.infrastructure.exceptions.IllegalArgumentException;
 import com.daniela.usuario.infrastructure.exceptions.ResourceNotFoundException;
 import com.daniela.usuario.infrastructure.exceptions.UnauthorizedException;
 import com.daniela.usuario.infrastructure.security.client.ViaCepDTO;
@@ -18,6 +19,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
@@ -370,6 +372,20 @@ public class UsuarioControllerTest {
 
         then(viaCepService).should().buscaDadosCep(anyString());
         then(viaCepService).shouldHaveNoMoreInteractions();
+    }
+
+    @Test
+    @DisplayName("Should return 400 Bad Request when postal code is invalid")
+    @WithMockUser(username = "admin", roles = "ADMIN")
+    void shouldReturn400BadRequestWhenPostalIsInvalid() throws Exception {
+        given(viaCepService.buscaDadosCep(any()))
+                .willThrow(IllegalArgumentException.class);
+
+        mockMvc.perform(get(url + "/endereco/{cep}", "123456789")
+                        .with(csrf()))
+                .andExpect(status().isBadRequest());
+
+
     }
 
 
