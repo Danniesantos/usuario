@@ -7,9 +7,12 @@ import com.daniela.usuario.infrastructure.repository.UsuarioRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,8 +27,12 @@ public class UsuarioRepositoryTest {
     @Autowired
     UsuarioRepository usuarioRepository;
 
+    @Autowired
+    TestEntityManager entityManager;
+
     Usuario usuario;
     Usuario usuario1;
+    String email;
 
     @BeforeEach
     void setup() {
@@ -34,9 +41,11 @@ public class UsuarioRepositoryTest {
         Endereco endereco2 = new Endereco(null, "rua das laranjas", 2L, "casa verde",
                 "Rio de janeiro", "RJ", "13540-000", null);
         Telefone telefone = new Telefone(null, "123456789", "11", null);
+        email = "email@gmail.com";
+
         usuario = new Usuario();
         usuario.setNome("testando");
-        usuario.setEmail("email@gmail.com");
+        usuario.setEmail(email);
         usuario.setSenha("1234567");
         usuario.setEnderecos(List.of(endereco1, endereco2));
         usuario.setTelefones(List.of(telefone));
@@ -100,7 +109,7 @@ public class UsuarioRepositoryTest {
         Usuario savedUser = usuarioRepository.save(usuario1);
         Long id = savedUser.getId();
 
-        savedUser.setEmail("test@gmail.com");
+        savedUser.setEmail(email);
         Usuario updateUser = usuarioRepository.save(savedUser);
 
         assertThat(updateUser).isNotNull();
@@ -108,5 +117,24 @@ public class UsuarioRepositoryTest {
         assertThat(updateUser.getEmail()).isEqualTo("test@gmail.com");
 
 
+    }
+
+    @Test
+    @DisplayName("Should retorn true when email exists")
+    void ShouldRetornTrueWhenEmailExists() {
+        entityManager.persist(usuario);
+
+        boolean exists = usuarioRepository.existsByEmail(email);
+
+        assertThat(exists).isTrue();
+    }
+
+    @Test
+    @DisplayName("Should retorn false when email exists")
+    void ShouldRetornFalseWhenEmailExists() {
+
+        boolean exists = usuarioRepository.existsByEmail(email);
+
+        assertThat(exists).isFalse();
     }
 }
