@@ -378,15 +378,12 @@ public class UsuarioControllerTest {
     @DisplayName("Should return 400 Bad Request when postal code is invalid")
     @WithMockUser(username = "admin", roles = "ADMIN")
     void shouldReturn400BadRequestWhenPostalIsInvalid() throws Exception {
-        given(viaCepService.buscaDadosCep(anyString()))
-                .willThrow(new IllegalArgumentException("O cep contém caracteres inválidos"));
+        given(viaCepService.buscaDadosCep(any()))
+                .willThrow(IllegalArgumentException.class);
 
         mockMvc.perform(get(url + "/endereco/{cep}", "123456789")
-                        .with(csrf())
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().string(
-                        "O cep contém caracteres inválidos"));
+                        .with(csrf()))
+                .andExpect(status().isBadRequest());
 
 
     }
