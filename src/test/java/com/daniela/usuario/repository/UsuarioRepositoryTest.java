@@ -84,11 +84,23 @@ public class UsuarioRepositoryTest {
     @Test
     @DisplayName("Should find user for email")
     void shouldFindUserByEmail() {
-        Usuario savedUser = usuarioRepository.save(usuario);
-        Optional<Usuario> found = usuarioRepository.findByEmail(savedUser.getEmail());
+
+        entityManager.persist(usuario);
+
+        Optional<Usuario> found = usuarioRepository.findByEmail(email);
 
         assertThat(found).isPresent();
-        assertThat(found.get().getEmail()).isEqualTo(usuario.getEmail());
+        assertThat(found.get().getEmail()).isEqualTo(email);
+
+    }
+
+    @Test
+    @DisplayName("Should not find user for email")
+    void shouldNotFindUserByEmail() {
+
+        Optional<Usuario> found = usuarioRepository.findByEmail(email);
+
+        assertThat(found).isNotPresent();
 
     }
 
