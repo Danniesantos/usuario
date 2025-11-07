@@ -7,18 +7,17 @@ import com.daniela.usuario.infrastructure.repository.UsuarioRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 
 @DataJpaTest
 @ActiveProfiles("test")
@@ -109,19 +108,19 @@ public class UsuarioRepositoryTest {
         Usuario savedUser = usuarioRepository.save(usuario1);
         Long id = savedUser.getId();
 
-        savedUser.setEmail(email);
+        savedUser.setEmail("update@email.com");
         Usuario updateUser = usuarioRepository.save(savedUser);
 
         assertThat(updateUser).isNotNull();
         assertThat(updateUser.getId()).isEqualTo(id);
-        assertThat(updateUser.getEmail()).isEqualTo("test@gmail.com");
+        assertThat(updateUser.getEmail()).isEqualTo("update@email.com");
 
 
     }
 
     @Test
     @DisplayName("Should retorn true when email exists")
-    void ShouldRetornTrueWhenEmailExists() {
+    void shouldRetornTrueWhenEmailExists() {
         entityManager.persist(usuario);
 
         boolean exists = usuarioRepository.existsByEmail(email);
@@ -131,10 +130,34 @@ public class UsuarioRepositoryTest {
 
     @Test
     @DisplayName("Should retorn false when email exists")
-    void ShouldRetornFalseWhenEmailExists() {
+    void shouldRetornFalseWhenEmailExists() {
 
         boolean exists = usuarioRepository.existsByEmail(email);
 
         assertThat(exists).isFalse();
+    }
+
+    @Test
+    @DisplayName("Should delete User when Email exists")
+    void shouldDeleteUserWhenEmailExists() {
+
+        entityManager.persist(usuario);
+
+        usuarioRepository.deleteByEmail(email);
+
+        Usuario deleted = entityManager.find(Usuario.class, usuario.getId());
+        assertThat(deleted).isNull();
+
+
+    }
+
+    @Test
+    @DisplayName("Should not throw when deleting non-existent email")
+    void shouldNotThrowWhenDeletingNonExistentEmail() {
+
+        assertThatCode(() -> usuarioRepository.deleteByEmail("notfound@email.com"))
+                .doesNotThrowAnyException();
+
+
     }
 }
