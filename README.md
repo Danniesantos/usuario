@@ -1,7 +1,7 @@
 # API REST - Usuário
 
 Este projeto implementa um CRUD completo para gerenciamento de usuários, utilizando **Java com Spring Boot** e **PostgreSQL**. A aplicação é containerizada com **Docker** e a qualidade do código é monitorada 
-com **SonarLint/SonarQube**.
+com **SonarLint/SonarQube**, Documentação com **Swagger.**.
 
 ---
 
@@ -47,3 +47,4 @@ mvn spring-boot:run
 bash
 Copiar código
 http://localhost:8080/swagger-ui.html
+
